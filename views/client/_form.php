@@ -27,9 +27,9 @@ use yii\widgets\ActiveForm;
     <?= Html::hiddenInput('is-modal', $redirectToClientPage ? 0 : 1) ?>
     <?= Html::hiddenInput('client-modal-mode', 'create') ?>
 
-    <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
-
     <?= $form->field($model, 'surname')->textInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'patronymic')->textInput(['maxlength' => true]) ?>
 
