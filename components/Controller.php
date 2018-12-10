@@ -47,7 +47,9 @@ class Controller extends BaseController
 
     /**
      * Отправляет ajax-ответ в виде json-объекта.
-     * Объект выглядит вот так: {"success": true, "data": "", "errorMessage": ""}
+     * Объект выглядит вот так:
+     * {"success": true,  "data": "данные", "error": null}
+     * {"success": false, "data": null,     "error": "сообщение об ошибке"}
      *
      * @param int               $statusCode
      * @param array|string|null $data
