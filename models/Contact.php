@@ -61,4 +61,20 @@ class Contact extends \app\components\db\ActiveRecord
     {
         return $this->hasMany(ClientContact::class, ['contact_id' => 'id']);
     }
+
+    /**
+     * Возвращает типы контактов.
+     *
+     * @return array
+     */
+    public function getAvailableTypes (): array
+    {
+        return [
+            'Телефон',
+            'Email',
+            'Skype',
+            'Instagram',
+            'YouTube',
+        ];
+    }
 }
