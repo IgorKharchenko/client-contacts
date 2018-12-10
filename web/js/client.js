@@ -36,7 +36,7 @@ $(document).ready(() => {
 
         // create / update
         let mode = $('[name=client-modal-mode]').val();
-        if (0 === isModal) {
+        if (0 === isModal && 1 === redirectToClientPage) {
             mode = 'update';
         }
         $.ajax({
@@ -108,20 +108,7 @@ $(document).ready(() => {
                 /**
                  * @type {{success: Boolean, data: {}}} responseData
                  */
-                for (let attributeName in responseData.data) {
-                    // это чтобы IDE лишний раз не ругалась
-                    if (!responseData.data.hasOwnProperty(attributeName)) {
-                        return false;
-                    }
-
-                    let attributeValue = responseData.data[attributeName];
-
-                    if ('photo' === attributeName) {
-                        form.find('.client-image').prop('src', attributeValue);
-                    } else {
-                        form.find(`#client-${attributeName}`).val(attributeValue);
-                    }
-                }
+                _setClientForm(form, responseData.data);
 
                 // форма в режиме редактирования клиента
                 $('[name=client-modal-mode]').val('update');
@@ -141,3 +128,30 @@ $(document).ready(() => {
         return false;
     });
 });
+
+/**
+ * Устанавливает значения в форме клиента.
+ *
+ * @param {jQuery|HTMLElement} form - форма.
+ * @param {Object}             data - данные для формы.
+ *
+ * @return {boolean}
+ *
+ * @private
+ */
+const _setClientForm = (form, data) => {
+    for (let attributeName in data) {
+        // это чтобы IDE лишний раз не ругалась
+        if (!data.hasOwnProperty(attributeName)) {
+            return false;
+        }
+
+        let attributeValue = data[attributeName];
+
+        if ('photo' === attributeName) {
+            form.find('.client-image').prop('src', attributeValue);
+        } else {
+            form.find(`#client-${attributeName}`).val(attributeValue);
+        }
+    }
+};
