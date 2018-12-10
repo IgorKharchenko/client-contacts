@@ -71,8 +71,15 @@ class ClientController extends Controller
      */
     public function actionView ($id)
     {
+        $clientTypes = ArrayFormatter::formatArray([
+            Client::TYPE_CUSTOMER,
+            Client::TYPE_PROVIDER,
+            Client::TYPE_PARTNER,
+        ]);
+
         return $this->render('view', [
-            'model' => $this->findModel($id),
+            'model'       => $this->findModel($id),
+            'clientTypes' => $clientTypes,
         ]);
     }
 
