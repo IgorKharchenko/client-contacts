@@ -1,6 +1,6 @@
 <?php
 
-namespace common\components\migration;
+namespace app\components\migration;
 
 use yii\helpers\ArrayHelper;
 
