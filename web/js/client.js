@@ -30,10 +30,15 @@ $(document).ready(() => {
             .removeClass('alert-success')
             .removeClass('alert-danger');
 
-        let clientId = Number($('[name=client-id]').val());
+        let clientId             = Number($('[name=client-id]').val());
+        let redirectToClientPage = Number($('[name=redirectToClientPage]').val());
+        let isModal              = Number($('[name=is-modal]').val());
 
         // create / update
         let mode = $('[name=client-modal-mode]').val();
+        if (0 === isModal) {
+            mode = 'update';
+        }
         $.ajax({
             url:         'create' === mode ? CREATE_CLIENT_URL : UPDATE_CLIENT_URL + `&id=${clientId}`,
             method:      'POST',
@@ -62,8 +67,14 @@ $(document).ready(() => {
                 $('.client-photo').val('');
                 $('.client-image').prop('src', responseData.data.photo);
 
-                $.pjax.defaults.timeout = false;
-                $.pjax.reload({container: '#clients-pjax'});
+                if (1 === redirectToClientPage) {
+                    setTimeout(() => {
+                        window.location.href = VIEW_CLIENT_URL + '&id=' + clientId;
+                    }, 3000);
+                } else {
+                    $.pjax.defaults.timeout = false;
+                    $.pjax.reload({container: '#clients-pjax'});
+                }
             },
             error:       (error) => {
                 alert.addClass('alert-danger').html((JSON.parse(error.responseText)).error);

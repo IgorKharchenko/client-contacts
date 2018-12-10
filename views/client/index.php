@@ -25,8 +25,9 @@ $this->params['breadcrumbs'][] = $this->title;
     ]) ?>
 
     <?= $this->render('_form', [
-        'model'       => new Client(),
-        'clientTypes' => $clientTypes,
+        'model'                => new Client(),
+        'clientTypes'          => $clientTypes,
+        'redirectToClientPage' => false,
     ]); ?>
 
     <?php \yii\bootstrap\Modal::end() ?>
@@ -92,10 +93,3 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php \yii\widgets\Pjax::end(); ?>
 </div>
-
-<script>
-    const CREATE_CLIENT_URL      = "<?= Url::to(['/client/create']) ?>";
-    const UPDATE_CLIENT_URL      = "<?= Url::to(['/client/update']) ?>";
-    const GET_CLIENT_URL         = "<?= Url::to(['/client/get-by-id']) ?>";
-    const UPDATE_CLIENT_FORM_URL = "<?= Url::to(['/client/update-client-form']) ?>";
-</script>

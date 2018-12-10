@@ -4,8 +4,9 @@ use yii\helpers\Html;
 use yii\widgets\DetailView;
 use app\models\Client;
 
-/* @var $this yii\web\View */
-/* @var $model app\models\Client */
+/** @var $this yii\web\View */
+/** @var $model app\models\Client */
+/** @var $clientTypes array */
 
 $this->title = $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Клиенты', 'url' => ['index']];
@@ -17,10 +18,11 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Редактировать', [
-            'update',
-            'id' => $model->id,
-        ], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('Редактировать', ['update', 'id' => $model->id], [
+            'class'  => 'btn btn-primary',
+            'target' => '_blank',
+        ]) ?>
+
         <?= Html::a('Удалить', ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
             'data'  => [
@@ -46,9 +48,17 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'label'  => (new Client())->getAttributeLabel('photo'),
                 'value'  => function(Client $model) {
-                    return Html::img($model->photo, [
-                        'class' => 'client-image client-image-full',
-                    ]);
+                    if (!$model->photo) {
+                        return 'Фотография не загружена.';
+                    }
+
+                    return Html::a(
+                        Html::img($model->photo, [
+                            'class' => 'client-image',
+                        ]),
+                        $model->photo,
+                        ['target' => '_blank']
+                    );
                 },
                 'format' => 'raw',
             ],

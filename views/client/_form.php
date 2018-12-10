@@ -7,10 +7,10 @@ use yii\widgets\ActiveForm;
 /* @var $model app\models\Client */
 /* @var $form yii\widgets\ActiveForm */
 /** @var $clientTypes array */
+/** @var $redirectToClientPage boolean */
 ?>
 
 <div class="client-form">
-
     <?= \yii\bootstrap\Alert::widget([
         'options' => [
             'class' => 'alert-info',
@@ -23,6 +23,9 @@ use yii\widgets\ActiveForm;
     ]); ?>
 
     <?= Html::hiddenInput('client-id', $model->id ?? 0); ?>
+    <?= Html::hiddenInput('redirectToClientPage', $redirectToClientPage ? 1 : 0) ?>
+    <?= Html::hiddenInput('is-modal', $redirectToClientPage ? 0 : 1) ?>
+    <?= Html::hiddenInput('client-modal-mode', 'create') ?>
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
@@ -54,7 +57,4 @@ use yii\widgets\ActiveForm;
     <div class="create-client-alert"></div>
 
     <?php ActiveForm::end(); ?>
-
-    <?= Html::hiddenInput('client-modal-mode', 'create') ?>
-
 </div>
