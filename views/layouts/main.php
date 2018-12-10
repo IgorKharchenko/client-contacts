@@ -5,6 +5,7 @@
 
 use app\widgets\Alert;
 use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
 use yii\widgets\Breadcrumbs;
@@ -30,19 +31,19 @@ AppAsset::register($this);
     <?php
     NavBar::begin([
         'brandLabel' => Yii::$app->name,
-        'brandUrl' => Yii::$app->homeUrl,
-        'options' => [
+        'brandUrl'   => Yii::$app->homeUrl,
+        'options'    => [
             'class' => 'navbar-inverse navbar-fixed-top',
         ],
     ]);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
-        'items' => [
+        'items'   => [
             ['label' => 'Home', 'url' => ['/site/index']],
             ['label' => 'About', 'url' => ['/site/about']],
             ['label' => 'Contact', 'url' => ['/site/contact']],
             Yii::$app->user->isGuest ? (
-                ['label' => 'Login', 'url' => ['/site/login']]
+            ['label' => 'Login', 'url' => ['/site/login']]
             ) : (
                 '<li>'
                 . Html::beginForm(['/site/logout'], 'post')
@@ -52,7 +53,7 @@ AppAsset::register($this);
                 )
                 . Html::endForm()
                 . '</li>'
-            )
+            ),
         ],
     ]);
     NavBar::end();
@@ -76,6 +77,16 @@ AppAsset::register($this);
 </footer>
 
 <?php $this->endBody() ?>
+
+<script>
+    // да, я знаю, какое место в аду мне прописано за такое
+    const CREATE_CLIENT_URL      = "<?= Url::to(['/client/create']) ?>";
+    const UPDATE_CLIENT_URL      = "<?= Url::to(['/client/update']) ?>";
+    const GET_CLIENT_URL         = "<?= Url::to(['/client/get-by-id']) ?>";
+    const UPDATE_CLIENT_FORM_URL = "<?= Url::to(['/client/update-client-form']) ?>";
+    const VIEW_CLIENT_URL        = "<?= Url::to(['/client/view']) ?>";
+</script>
+
 </body>
 </html>
 <?php $this->endPage() ?>
