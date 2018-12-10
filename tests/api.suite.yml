@@ -1,0 +1,12 @@
+class_name: ApiTester
+modules:
+    enabled:
+        - REST:
+            url: 'http://client-contacts.local/web/'
+            depends: Yii2
+        - Yii2:
+            part: [orm]
+    config:
+        - Yii2:
+            configFile: 'config/test.php'
+            cleanup: false

@@ -9,3 +9,7 @@ modules:
       - Asserts
       - Yii2:
             part: [orm, email]
+    config:
+      - Yii2:
+        configFile: 'config/test.php'
+        cleanup: false
