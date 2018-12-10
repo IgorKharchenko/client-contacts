@@ -67,7 +67,7 @@ class DbHelper
      */
     private static function getDb (): \PDO
     {
-        $config = require __DIR__ . '/../../config/test-local.php';
+        $config = require __DIR__ . '/../../config/test_db.php';
         $dbConfig = $config['components']['db'];
 
         return new \PDO($dbConfig['dsn'], $dbConfig['username'], $dbConfig['password'], [
