@@ -18,23 +18,6 @@ class ActiveRecord extends BaseActiveRecord
     const DB_DATETIME_FORMAT = 'Y-m-d H:i:s';
 
     /**
-     * Подключаем поведения к базовой модели.
-     *
-     * @return array
-     */
-    public function behaviors ()
-    {
-        $behaviors = parent::behaviors();
-        $behaviors['TimestampBehavior'] = [
-            'class'              => TimestampBehavior::class,
-            'createdAtAttribute' => 'created_at',
-            'updatedAtAttribute' => 'updated_at',
-            'value'              => function() { return date(static::DB_DATETIME_FORMAT); },
-        ];
-        return $behaviors;
-    }
-
-    /**
      * Производит поиск модели по заданному условию. В случае, если модель не найдена выбрасывается
      * исключение.
      *
