@@ -50,4 +50,23 @@ class ClientTest extends \Codeception\Test\Unit
 
         $this->validateModel($client, true);
     }
+
+    public function testGetFullNameOnEmptyClient()
+    {
+        $client = new Client();
+
+        $this->assertEquals('  ', $client->getFullName());
+    }
+
+    public function testGetFullName()
+    {
+        $client = new Client([
+            'name'    => 'Ирина',
+            'surname' => 'Новикова',
+            'type'    => Client::TYPE_PROVIDER,
+            'active'  => 1,
+        ]);
+
+        $this->assertEquals('Новикова Ирина ', $client->getFullName());
+    }
 }
