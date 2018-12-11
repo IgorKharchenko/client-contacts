@@ -96,9 +96,9 @@ a.desc:after {
     border: none;
 }
 
-@media(max-width:767px) {
+@media (max-width: 767px) {
     .nav li > form > button.logout {
-        display:block;
+        display: block;
         text-align: left;
         width: 100%;
         padding: 10px 15px;
@@ -132,6 +132,7 @@ a.desc:after {
     -ms-transform: translateZ(0);
     transform: translateZ(0);
 }
+
 @-webkit-keyframes load4 {
     0%,
     100% {
@@ -159,6 +160,7 @@ a.desc:after {
         box-shadow: 0em -3em 0 0, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 0, -3em 0em 0 0, -2em -2em 0 0.2em;
     }
 }
+
 @keyframes load4 {
     0%,
     100% {
@@ -196,10 +198,12 @@ a.desc:after {
     width: 64px;
     height: 64px;
 }
+
 .lds-roller div {
     animation: lds-roller 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
     transform-origin: 32px 32px;
 }
+
 .lds-roller div:after {
     content: " ";
     display: block;
@@ -210,62 +214,79 @@ a.desc:after {
     background: #337ab7;
     margin: -3px 0 0 -3px;
 }
+
 .lds-roller div:nth-child(1) {
     animation-delay: -0.036s;
 }
+
 .lds-roller div:nth-child(1):after {
     top: 50px;
     left: 50px;
 }
+
 .lds-roller div:nth-child(2) {
     animation-delay: -0.072s;
 }
+
 .lds-roller div:nth-child(2):after {
     top: 54px;
     left: 45px;
 }
+
 .lds-roller div:nth-child(3) {
     animation-delay: -0.108s;
 }
+
 .lds-roller div:nth-child(3):after {
     top: 57px;
     left: 39px;
 }
+
 .lds-roller div:nth-child(4) {
     animation-delay: -0.144s;
 }
+
 .lds-roller div:nth-child(4):after {
     top: 58px;
     left: 32px;
 }
+
 .lds-roller div:nth-child(5) {
     animation-delay: -0.18s;
 }
+
 .lds-roller div:nth-child(5):after {
     top: 57px;
     left: 25px;
 }
+
 .lds-roller div:nth-child(6) {
     animation-delay: -0.216s;
 }
+
 .lds-roller div:nth-child(6):after {
     top: 54px;
     left: 19px;
 }
+
 .lds-roller div:nth-child(7) {
     animation-delay: -0.252s;
 }
+
 .lds-roller div:nth-child(7):after {
     top: 50px;
     left: 14px;
 }
+
 .lds-roller div:nth-child(8) {
     animation-delay: -0.288s;
 }
+
 .lds-roller div:nth-child(8):after {
     top: 45px;
     left: 10px;
 }
+
 @keyframes lds-roller {
     0% {
         transform: rotate(0deg);
@@ -275,11 +296,11 @@ a.desc:after {
     }
 }
 
-
 /**
  * Glyphicon buttons
  */
-.update-client {
+.update-client,
+.update-contact {
     border: 0;
     background-color: transparent;
     color: #337ab7;
@@ -297,4 +318,25 @@ a.desc:after {
 
 .create-client-alert > .close {
     border: 0;
+}
+
+.delete-client-contact {
+    position: absolute;
+    top: 24px;
+    left: 0;
+}
+
+.client-search {
+    border: 1px solid #aaa;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: none;
+}
+
+#clientsearch-typesofcontact {
+    height: 100%;
+}
+
+#clientsearch-typesofcontact > label {
+    display: block;
 }

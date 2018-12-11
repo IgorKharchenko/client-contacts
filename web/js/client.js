@@ -1,6 +1,8 @@
 $(document).ready(() => {
     let loadingSpinner = $('<div class="loader"></div>');
 
+    // ========= Создание / редактирование клиента =========
+
     /**
      * Открытие модального окна для создания клиента
      */
@@ -14,7 +16,21 @@ $(document).ready(() => {
         // id редактируемого клиента сбрасываем
         $('[name=client-id]').val(0);
 
-        $('#create-client-modal').modal('show');
+        // оставляем только один контакт
+        $.ajax({
+            url:        CLIENT_CONTACTS_FORM_URL,
+            beforeSend: () => {
+                $('.client-contact').remove();
+                $('.client-contacts button').remove();
+            },
+            success:    (responseData) => {
+                $('.client-contacts').append(responseData);
+
+                $('.delete-client-contact').hide();
+
+                $('#create-client-modal').modal('show');
+            }
+        });
     });
 
     /**
@@ -39,6 +55,19 @@ $(document).ready(() => {
         if (0 === isModal && 1 === redirectToClientPage) {
             mode = 'update';
         }
+
+        // в случае с созданием клиента если хотя бы один его контакт заполнен,
+        // то форма также считается валидной
+        if (!_validateClientContacts()) {
+            return false;
+        }
+
+        let removedContactsIds = $('[name="removedContactsIds"]')
+            .val()
+            .split(',')
+            .filter(contact => contact.length > 0);
+
+        // сначала создаём клиента, после чего заполняем для него контакты
         $.ajax({
             url:         'create' === mode ? CREATE_CLIENT_URL : UPDATE_CLIENT_URL + `&id=${clientId}`,
             method:      'POST',
@@ -50,34 +79,51 @@ $(document).ready(() => {
             },
             success:     (responseData) => {
                 /**
-                 * @type {{success: true, data: {photo: String}}} responseData
+                 * @type {{success: true, data: {
+                 *      id: Number, photo: String,
+                 *      короче в data перечислены все поля из таблицы client
+                 * }}} responseData
                  */
-                alert
-                    .addClass('alert-success')
-                    .fadeIn();
-                alert
-                    .html('create' === mode ? 'Клиент успешно создан.' : 'Клиент успешно сохранён.');
+                $.ajax({
+                    url:     SAVE_CONTACT_URL,
+                    method:  'POST',
+                    data:    {
+                        contacts:           _getContactsFromClientForm(responseData.data.id),
+                        clientId:           responseData.data.id,
+                        removedContactsIds: removedContactsIds,
+                    },
+                    success: (resp) => {
+                        alert
+                            .addClass('alert-success')
+                            .fadeIn();
+                        alert
+                            .html('create' === mode ? 'Клиент успешно создан.' : 'Клиент успешно сохранён.');
 
-                setTimeout(() => alert.fadeOut(700), 3000);
+                        setTimeout(() => alert.fadeOut(700), 3000);
 
-                if ('create' === mode) {
-                    form.find('input').val('');
-                }
+                        if ('create' === mode) {
+                            form.find('input').val('');
+                        }
 
-                $('.client-photo').val('');
-                $('.client-image').prop('src', responseData.data.photo);
+                        $('#client-photo').val('');
+                        $('.client-image').prop('src', responseData.data.photo);
 
-                if (1 === redirectToClientPage) {
-                    setTimeout(() => {
-                        window.location.href = VIEW_CLIENT_URL + '&id=' + clientId;
-                    }, 3000);
-                } else {
-                    $.pjax.defaults.timeout = false;
-                    $.pjax.reload({container: '#clients-pjax'});
-                }
+                        if (1 === redirectToClientPage) {
+                            setTimeout(() => {
+                                window.location.href = VIEW_CLIENT_URL + '&id=' + clientId;
+                            }, 3000);
+                        } else {
+                            $.pjax.defaults.timeout = false;
+                            $.pjax.reload({container: '#clients-pjax'});
+                        }
+                    },
+                    error:   (error) => {
+                        alert.addClass('alert-danger').html((JSON.parse(error.responseText)).error).fadeIn();
+                    },
+                });
             },
             error:       (error) => {
-                alert.addClass('alert-danger').html((JSON.parse(error.responseText)).error);
+                alert.addClass('alert-danger').html((JSON.parse(error.responseText)).error).fadeIn();
             },
         });
 
@@ -87,7 +133,7 @@ $(document).ready(() => {
     /**
      * Открытие формы редактирования клиента
      */
-    $(document).on('click', '.update-client', async e => {
+    $(document).on('click', '.update-client', e => {
         let id      = Number($(e.target).data('id'));
         let modal   = $('#create-client-modal');
         let spinner = $('<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>');
@@ -95,7 +141,7 @@ $(document).ready(() => {
         let parent = $(e.target).parent();
         let form   = $('.client-form');
 
-        await $.ajax({
+        $.ajax({
             url:        GET_CLIENT_URL + '&clientId=' + id,
             method:     'GET',
             beforeSend: () => {
@@ -109,6 +155,9 @@ $(document).ready(() => {
                  * @type {{success: Boolean, data: {}}} responseData
                  */
                 _setClientForm(form, responseData.data);
+
+                // показываем форму контактов
+                _setClientContactsForm(id);
 
                 // форма в режиме редактирования клиента
                 $('[name=client-modal-mode]').val('update');
@@ -128,6 +177,37 @@ $(document).ready(() => {
         return false;
     });
 });
+
+/**
+ * Устанавливает форму контактов клиента.
+ *
+ * @param {Number|Null} clientId - id клиента.
+ *
+ * @private
+ */
+const _setClientContactsForm = (clientId = null) => {
+    let url = CLIENT_CONTACTS_FORM_URL;
+    if (null !== url) {
+        url += '&clientId=' + clientId;
+    }
+
+    $.ajax({
+        url:     url,
+        method:  'GET',
+        success: (form) => {
+            $('.client-contacts-wrap').show();
+            let clientContacts = $('.client-contacts');
+            clientContacts.html($(form).clone());
+
+            let removeContactButton = clientContacts.find('.delete-client-contact');
+            if (1 === removeContactButton.length) {
+                removeContactButton.hide();
+            }
+        },
+        error:   () => {
+        },
+    });
+};
 
 /**
  * Устанавливает значения в форме клиента.
@@ -154,4 +234,85 @@ const _setClientForm = (form, data) => {
             form.find(`#client-${attributeName}`).val(attributeValue);
         }
     }
+};
+
+/**
+ * Возвращает контакты с формы клиента.
+ *
+ * @param {Number|Null} clientId - id клиента либо null если клиент ещё не создан.
+ *
+ * @return {Array}
+ *
+ * @private
+ */
+const _getContactsFromClientForm = (clientId = null) => {
+    let contacts = [];
+
+    $('.client-contact').each((index, contact) => {
+        contacts.push({
+            id:           Number($(contact).find('[name="ClientContact[id]"]').val()) || null,
+            client_id:    clientId,
+            contact_type: $(contact).find('[name="ClientContact[contact_type]"]').val(),
+            content:      $(contact).find('[name="ClientContact[content]"]').val(),
+        });
+    });
+
+    return contacts;
+};
+
+/**
+ * Валидирует форму контактов клиента.
+ * @todo переписать этот бред с использованием jquery.validation плагина {@link https://jqueryvalidation.org/}
+ * З.Ы. я пытался использовать $.yiiActiveForm('validate'),
+ * но он почему-то не заработал с несколькими одинаковыми ActiveForm-ами:
+ * скорее всего из-за того, что в формах есть элементы с гвоздями прибитыми id-шниками
+ * типа "#clientcontact-content"
+ *
+ * @return {Boolean}
+ *
+ * @private
+ */
+const _validateClientContacts = () => {
+    let contacts = $('.add-contact-form');
+    let valid    = true;
+
+    contacts.each((index, contact) => {
+        let type    = $(contact).find('[name="ClientContact[contact_type]"]');
+        let content = $(contact).find('[name="ClientContact[content]"]');
+
+        if ('' === type.val()) {
+            $(type)
+                .parent()
+                .addClass('has-error')
+                .find('.help-block')
+                .html('Пожалуйста, выберите тип.');
+            valid = false;
+        }
+        if ('' === content.val()) {
+            $(content)
+                .parent()
+                .addClass('has-error')
+                .find('.help-block')
+                .html('Пожалуйста, укажите контакт.');
+            valid = false;
+        }
+        if (content.val().length > 30) {
+            $(content)
+                .parent()
+                .addClass('has-error')
+                .find('.help-block')
+                .html('Контакт не может содержать более 30 символов.');
+            valid = false;
+        }
+
+        $(document).on('keyup paste change', '[name="ClientContact[contact_type]"], [name="ClientContact[content]"]', e => {
+            $(e.target)
+                .parent()
+                .removeClass('has-error')
+                .find('.help-block')
+                .html('');
+        });
+    });
+
+    return valid;
 };

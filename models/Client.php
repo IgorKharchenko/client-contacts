@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use yii\behaviors\TimestampBehavior;
+
 /**
  * This is the model class for table "client".
  *
@@ -56,6 +58,23 @@ class Client extends \app\components\db\ActiveRecord
     }
 
     /**
+     * Подключаем TimestampBehavior.
+     *
+     * @return array
+     */
+    public function behaviors ()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['TimestampBehavior'] = [
+            'class'              => TimestampBehavior::class,
+            'createdAtAttribute' => 'created_at',
+            'updatedAtAttribute' => 'updated_at',
+            'value'              => function() { return date(static::DB_DATETIME_FORMAT); },
+        ];
+        return $behaviors;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function attributeLabels ()
@@ -70,6 +89,21 @@ class Client extends \app\components\db\ActiveRecord
             'created_at' => 'Создан в',
             'updated_at' => 'Обновлен в',
         ];
+    }
+
+    /**
+     * Возвращает полное ФИО клиента.
+     *
+     * @return string
+     */
+    public function getFullName ()
+    {
+        return sprintf(
+            '%s %s %s',
+            $this->surname,
+            $this->name,
+            $this->patronymic
+        );
     }
 
     /**

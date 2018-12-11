@@ -7,6 +7,7 @@ use app\models\Client;
 /** @var $this yii\web\View */
 /** @var $model app\models\Client */
 /** @var $clientTypes array */
+/** @var $contacts \app\models\ClientContact[] */
 
 $this->title = $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Клиенты', 'url' => ['index']];
@@ -59,6 +60,17 @@ $this->params['breadcrumbs'][] = $this->title;
                         $model->photo,
                         ['target' => '_blank']
                     );
+                },
+                'format' => 'raw',
+            ],
+            [
+                'label' => 'Контакты',
+                'value' => function (Client $model) use ($contacts) {
+                    $out = '';
+                    foreach ($contacts as $contact) {
+                        $out .= "<p><b>{$contact->contact_type}</b>: {$contact->content}</p>";
+                    }
+                    return $out;
                 },
                 'format' => 'raw',
             ],

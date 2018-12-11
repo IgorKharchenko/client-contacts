@@ -3,12 +3,16 @@
 namespace app\controllers;
 
 use app\components\view\dropDownList\ArrayFormatter;
+use app\models\ClientContact;
+use app\models\ClientSearch;
+use app\models\ContactType;
 use app\models\UploadPhotoForm;
 use Yii;
 use app\models\Client;
 use yii\base\InvalidArgumentException;
 use yii\data\ActiveDataProvider;
 use app\components\Controller;
+use yii\helpers\ArrayHelper;
 use yii\rbac\PhpManager;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -28,7 +32,8 @@ class ClientController extends Controller
             'verbs' => [
                 'class'   => VerbFilter::class,
                 'actions' => [
-                    'delete' => ['POST'],
+                    'delete'    => ['POST'],
+                    'get-by-id' => ['GET'],
                 ],
             ],
         ];
@@ -41,6 +46,9 @@ class ClientController extends Controller
      */
     public function actionIndex ()
     {
+        $post = Yii::$app->request->post();
+        $clientSearch = new ClientSearch();
+
         $dataProvider = new ActiveDataProvider([
             'query'      => Client::find(),
             'pagination' => [
@@ -48,16 +56,23 @@ class ClientController extends Controller
             ],
         ]);
 
+        if ($clientSearch->load($post)) {
+            $dataProvider = $clientSearch->search();
+        }
+
         $clientTypes = ArrayFormatter::formatArray([
             Client::TYPE_CUSTOMER,
             Client::TYPE_PROVIDER,
             Client::TYPE_PARTNER,
         ]);
+        $contactTypes = ArrayFormatter::formatArray(ContactType::getAllTypesAsArray());
 
         return $this->render('index', [
             'dataProvider' => $dataProvider,
+            'clientSearch' => $clientSearch,
             'client'       => new Client(),
             'clientTypes'  => $clientTypes,
+            'contactTypes' => $contactTypes,
         ]);
     }
 
@@ -77,9 +92,12 @@ class ClientController extends Controller
             Client::TYPE_PARTNER,
         ]);
 
+        $contacts = ClientContact::findAllByClientId($id);
+
         return $this->render('view', [
             'model'       => $this->findModel($id),
             'clientTypes' => $clientTypes,
+            'contacts'    => $contacts,
         ]);
     }
 
@@ -113,8 +131,10 @@ class ClientController extends Controller
     }
 
     /**
+     * Картина маслом: "когда пытаешься сделать тонкий контроллер"
+     *
      * @param string $mode
-     * @param        $model
+     * @param Client $model
      *
      * @return string
      *
@@ -147,13 +167,19 @@ class ClientController extends Controller
             // при обновлении клиента фотография заменяется на новую
             // либо же остаётся прежней, если в браузере клиент не выбрал фотографию
             $isPhotoReuploaded = !$model->getIsNewRecord() &&
-                null !== $model->photo &&
                 null !== $uploadForm->imageFile;
+
+            // если фотография не загружена, то оставляем предыдущую
+            if (!$isPhotoReuploaded) {
+                $model->photo = $oldPhoto;
+            }
+
             if ($isPhotoReuploaded || $model->getIsNewRecord()) {
                 if ($uploadForm->upload()) {
                     $model->photo = $uploadForm->imageUrl;
                 } else {
                     $model->addError('photo', 'Не удалось загрузить фотографию.');
+                    $model->photo = $oldPhoto;
                 }
             }
 
@@ -170,10 +196,18 @@ class ClientController extends Controller
             Client::TYPE_PROVIDER,
             Client::TYPE_PARTNER,
         ]);
+        $contactTypes = ArrayFormatter::formatArray(ContactType::getAllTypesAsArray());
+
+        $contacts = [];
+        if (!$model->getIsNewRecord()) {
+            $contacts = ClientContact::findAllByClientId((int)$model->id);
+        }
 
         return $this->render($mode, [
-            'model'       => $model,
-            'clientTypes' => $clientTypes,
+            'model'        => $model,
+            'clientTypes'  => $clientTypes,
+            'contactTypes' => $contactTypes,
+            'contacts'     => $contacts,
         ]);
     }
 
@@ -196,32 +230,27 @@ class ClientController extends Controller
     }
 
     /**
-     * Форма обновления клиента.
-     * Рендерится внутри модального окна.
+     * Рендеринг формы контактов клиента.
+     * Подгружается при редактировании и создании клиента.
      *
-     * @param int $clientId id клиента.
+     * @param int|null $clientId id клиента, если null то форма отсылается пустой.
      *
      * @return string
      */
-    public function actionUpdateClientForm ($clientId)
+    public function actionClientContactForm ($clientId = null)
     {
-        $client = Client::findOne((int)$clientId);
-        if (null === $client) {
-            Yii::$app->response->setStatusCode(404);
-            return '';
+        $contacts = [];
+        if (null !== $clientId) {
+            $contacts = ClientContact::find()
+                                     ->where(['client_id' => (int)$clientId])
+                                     ->all();
         }
 
-        sleep(1);
+        $contactTypes = ArrayFormatter::formatArray(ContactType::getAllTypesAsArray());
 
-        $clientTypes = ArrayFormatter::formatArray([
-            Client::TYPE_CUSTOMER,
-            Client::TYPE_PROVIDER,
-            Client::TYPE_PARTNER,
-        ]);
-
-        return $this->renderPartial('_form', [
-            'model'       => $client,
-            'clientTypes' => $clientTypes,
+        return $this->renderPartial('//contact/_contacts', [
+            'contacts'     => $contacts,
+            'contactTypes' => $contactTypes,
         ]);
     }
 

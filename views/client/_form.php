@@ -7,7 +7,9 @@ use yii\widgets\ActiveForm;
 /* @var $model app\models\Client */
 /* @var $form yii\widgets\ActiveForm */
 /** @var $clientTypes array */
+/** @var $contactTypes array */
 /** @var $redirectToClientPage boolean */
+/** @var $contacts \app\models\ContactType[] */
 ?>
 
 <div class="client-form">
@@ -15,7 +17,7 @@ use yii\widgets\ActiveForm;
         'options' => [
             'class' => 'alert-info',
         ],
-        'body'    => 'Все поля, помеченные знаком *, обязательны для заполнения.',
+        'body'    => 'Все поля, помеченные знаком *, обязательны для заполнения.<br><br> Для сохранения изменений (в т.ч. контактов) нажмите кнопку &laquo;Сохранить&raquo; внизу формы.',
     ]) ?>
 
     <?php $form = ActiveForm::begin([
@@ -33,9 +35,13 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'patronymic')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'type')->dropDownList($clientTypes) ?>
+    <?= $form->field($model, 'type')->dropDownList($clientTypes, [
+        'prompt' => 'Выберите тип клиента',
+    ]) ?>
 
-    <?= $form->field($model, 'active')->dropDownList([1 => 'Да', 0 => 'Нет',]) ?>
+    <?= $form->field($model, 'active')->dropDownList([1 => 'Да', 0 => 'Нет',], [
+        'prompt' => 'Выберите, активен ли клиент',
+    ]) ?>
 
     <?= $form->field($model, 'photo')->fileInput([]) ?>
 
@@ -50,11 +56,24 @@ use yii\widgets\ActiveForm;
         'class' => 'client-image',
     ]) ?>
 
-    <div class="form-group">
-        <?= Html::submitButton('Сохранить', ['class' => 'btn btn-success']) ?>
-    </div>
+    <div class="client-contacts-wrap">
+        <label class="control-label">Контакты</label>
 
-    <div class="create-client-alert"></div>
+        <div class="client-contacts">
+            <?php if ($redirectToClientPage): ?>
+                <?= $this->render('//contact/_contacts', [
+                    'contactTypes' => $contactTypes,
+                    'contacts'     => $contacts ?? [],
+                ]) ?>
+            <?php endif; ?>
+        </div>
+
+        <div class="form-group">
+            <?= Html::submitButton('Сохранить', ['class' => 'btn btn-success']) ?>
+        </div>
+
+        <div class="create-client-alert"></div>
+    </div>
 
     <?php ActiveForm::end(); ?>
 </div>

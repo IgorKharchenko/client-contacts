@@ -80,11 +80,14 @@ AppAsset::register($this);
 
 <script>
     // да, я знаю, какое место в аду мне прописано за такое
-    const CREATE_CLIENT_URL      = "<?= Url::to(['/client/create']) ?>";
-    const UPDATE_CLIENT_URL      = "<?= Url::to(['/client/update']) ?>";
-    const GET_CLIENT_URL         = "<?= Url::to(['/client/get-by-id']) ?>";
-    const UPDATE_CLIENT_FORM_URL = "<?= Url::to(['/client/update-client-form']) ?>";
-    const VIEW_CLIENT_URL        = "<?= Url::to(['/client/view']) ?>";
+    const CREATE_CLIENT_URL        = "<?= Url::to(['/client/create']) ?>";
+    const UPDATE_CLIENT_URL        = "<?= Url::to(['/client/update']) ?>";
+    const GET_CLIENT_URL           = "<?= Url::to(['/client/get-by-id']) ?>";
+    const UPDATE_CLIENT_FORM_URL   = "<?= Url::to(['/client/update-client-form']) ?>";
+    const VIEW_CLIENT_URL          = "<?= Url::to(['/client/view']) ?>";
+    const CLIENT_CONTACTS_FORM_URL = "<?= Url::to(['/client/client-contact-form']) ?>";
+    const SAVE_CONTACT_URL         = "<?= Url::to(['/contact/save-contacts-ajax']) ?>";
+    const DELETE_CONTACT_TYPE_URL  = "<?= Url::to(['/contact-type/delete']) ?>";
 </script>
 
 </body>

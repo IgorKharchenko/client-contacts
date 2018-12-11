@@ -1,13 +1,15 @@
 <?php
 
-use yii\helpers\Url;
-use yii\helpers\Html;
-use yii\grid\GridView;
 use app\models\Client;
+use app\models\ClientSearch;
+use yii\grid\GridView;
+use yii\helpers\Html;
 
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
+/** @var $clientSearch ClientSearch */
 /** @var $clientTypes array */
+/** @var $contactTypes array */
 /** @var $client Client */
 
 $this->title = 'Список клиентов';
@@ -27,6 +29,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= $this->render('_form', [
         'model'                => new Client(),
         'clientTypes'          => $clientTypes,
+        'contactTypes'         => $contactTypes,
         'redirectToClientPage' => false,
     ]); ?>
 
@@ -36,7 +39,18 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::button('Создать клиента', [
             'class' => 'btn btn-success create-client',
         ]) ?>
+
+        <?= Html::button('Поиск клиента', [
+            'id'    => 'client-search-form-toggle',
+            'class' => 'btn btn-primary',
+        ]) ?>
     </p>
+
+    <?= $this->render('_search', [
+        'model'        => $clientSearch,
+        'clientTypes'  => $clientTypes,
+        'contactTypes' => $contactTypes,
+    ]) ?>
 
     <?php \yii\widgets\Pjax::begin([
         'id' => 'clients-pjax',
@@ -56,6 +70,17 @@ $this->params['breadcrumbs'][] = $this->title;
                 'value' => function(Client $model) {
                     return $model->active ? 'Да' : 'Нет';
                 },
+            ],
+            [
+                'label' => 'Контакты',
+                'value' => function (Client $model) {
+                    $out = '';
+                    foreach ($model->clientContacts as $contact) {
+                        $out .= "<p><b>{$contact->contact_type}</b>: {$contact->content}</p>";
+                    }
+                    return $out;
+                },
+                'format' => 'raw',
             ],
             'created_at:datetime',
             'updated_at:datetime',
